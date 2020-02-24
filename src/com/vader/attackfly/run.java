@@ -38,6 +38,14 @@ public class run extends JFrame {
 	public static BufferedImage hero1;
 
 	
+	//主角
+	
+	//敌机
+	
+	//子弹
+	
+	//补给
+	
 	/*
 	 * 初始化窗口配置
 	 * */
@@ -69,14 +77,10 @@ public class run extends JFrame {
 		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {
-				if (state == RUNNING) { // 运行状态
-//					enterAction(); // 飞行物入场
-//					stepAction(); // 走一步
-//					shootAction(); // 英雄机射击
-//					bangAction(); // 子弹打飞行物
-//					outOfBoundsAction(); // 删除越界飞行物及子弹
-//					checkGameOverAction(); // 检查游戏结束
-				}
+				int a = 1;
+				//填写游戏过程
+				System.out.print(a++);
+				
 				repaint(); // 重绘，调用paint()方法
 			}
 
