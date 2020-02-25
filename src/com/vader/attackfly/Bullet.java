@@ -8,6 +8,7 @@ package com.vader.attackfly;
  */
 public class Bullet extends FlyingObject{
 	private int speed = 3; //×Óµ¯ËÙ¶È
+	private int type = 0;
 	
 	
 	public Bullet(int x, int y) {
