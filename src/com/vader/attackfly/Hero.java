@@ -26,7 +26,7 @@ public class Hero extends FlyingObject{
 	
 	/** 初始化数据 */
 	public Hero(int x, int y) {
-		life = 3;   //初始3条命
+		life = 0;   //初始3条命
 		bulletType = 0;   //初始火力为0
 		speed = 10;
 		this.x = x;

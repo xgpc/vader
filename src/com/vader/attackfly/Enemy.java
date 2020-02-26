@@ -1,26 +1,53 @@
 package com.vader.attackfly;
 
-public class Enemy extends FlyingObject{
-	private int speed = 3; //子弹速度
-	private int score = 1;	//分数奖励
-	private int bulletType;   //子弹类型
-	private int life;   //命
-		
-	/** 获取分数 */
+public class Enemy extends FlyingObject {
+	private int speed = 5; // 速度
+	private int score = 1; // 分数奖励
+	private int bulletType; // 子弹类型
+	private int life; // 命
 
-	public int getScore() {  
+	/** 获取分数 */
+	public int getScore() {
 		return this.score;
 	}
-	
+
+	public int getSpeed() {
+		return speed;
+	}
+
+	public void setSpeed(int speed) {
+		this.speed = speed;
+	}
+
+	public int getBulletType() {
+		return bulletType;
+	}
+
+	public void setBulletType(int bulletType) {
+		this.bulletType = bulletType;
+	}
+
+	public int getLife() {
+		return life;
+	}
+
+	public void setLife(int life) {
+		this.life = life;
+	}
+
+	public void setScore(int score) {
+		this.score = score;
+	}
+
 	/** //越界处理 */
 	@Override
-	public 	boolean outOfBounds() {   
-		return y>run.HEIGHT;
+	public boolean outOfBounds() {
+		return y > run.HEIGHT;
 	}
 
 	/** 移动 */
 	@Override
-	public void step() {   
+	public void step() {
 		y += speed;
 	}
 }
