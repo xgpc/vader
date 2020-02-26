@@ -7,7 +7,7 @@ package com.vader.attackfly;
  * @author Xmas
  */
 public class Bullet extends FlyingObject{
-	private int speed = 3; //子弹速度
+	private int speed = 15; //子弹速度
 	private int type = 0;
 	
 	
@@ -20,7 +20,8 @@ public class Bullet extends FlyingObject{
 	@Override
 	public boolean outOfBounds( ) {
 		// TODO Auto-generated method stub
-		return ((y < 0) && (y > this.height) && (x < 0) && (x > this.width));
+		return ((y < 0) || (y > this.height) || (x < 0) || (x > this.width));
+
 	}
 
 	//运行方式 垂直向下

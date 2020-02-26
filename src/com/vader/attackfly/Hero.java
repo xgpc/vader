@@ -7,8 +7,65 @@ public class Hero extends FlyingObject {
 	private int bulletType; // 子弹类型
 	private int life; // 命
 	private int speed; // 速度
+	private int attackspeed = 10;
 
 	public boolean up, down, left, right = false;
+	public boolean fire, boom = false;
+
+	
+
+	public BufferedImage zd1;
+	public BufferedImage zd2;
+	public BufferedImage zd3;
+	public BufferedImage zd4;
+
+	public boolean isFire() {
+		return fire;
+	}
+
+	public void setFire(boolean fire) {
+		this.fire = fire;
+	}
+	
+	public int getAttackspeed() {
+		return attackspeed;
+	}
+
+	public void setAttackspeed(int attackspeed) {
+		this.attackspeed = attackspeed;
+	}
+
+	public BufferedImage getZd1() {
+		return zd1;
+	}
+
+	public void setZd1(BufferedImage zd1) {
+		this.zd1 = zd1;
+	}
+
+	public BufferedImage getZd2() {
+		return zd2;
+	}
+
+	public void setZd2(BufferedImage zd2) {
+		this.zd2 = zd2;
+	}
+
+	public BufferedImage getZd3() {
+		return zd3;
+	}
+
+	public void setZd3(BufferedImage zd3) {
+		this.zd3 = zd3;
+	}
+
+	public BufferedImage getZd4() {
+		return zd4;
+	}
+
+	public void setZd4(BufferedImage zd4) {
+		this.zd4 = zd4;
+	}
 
 	public void setup(boolean b) {
 		this.up = b;
@@ -59,13 +116,38 @@ public class Hero extends FlyingObject {
 	 * 发射子弹
 	 */
 	public Bullet attack() {
-		switch (this.bulletType) {
-		case 1:
+		
+		if (this.fire == false) {
 			return null;
-		default:
-			Bullet b = new Bullet(this.x + this.width / 2, this.y);
-			return b;
 		}
+		
+		Bullet b = new Bullet(this.x + this.getImage().getWidth()/2, this.y);
+		b.setHeight(this.height);
+		b.setWidth(this.width);
+		switch (this.bulletType) {
+		
+		case 0:
+			b.setImage(zd1);
+			
+			break;
+		case 1:
+			b.setImage(zd2);
+			break;
+		case 2:
+			b.setImage(zd3);
+			break;
+		case 3:
+			b.setImage(zd4);
+			break;
+		}
+		return b;
+	}
+
+	/**
+	 * 使用炸弹
+	 */
+	public boolean Boom() {
+		return this.boom;
 	}
 
 	/** 越界处理 */
@@ -87,7 +169,7 @@ public class Hero extends FlyingObject {
 		}
 
 		if (this.up == true) {
-			if (this.y < 0 )
+			if (this.y < 0)
 				return;
 			this.y = this.y - speed;
 
@@ -111,5 +193,7 @@ public class Hero extends FlyingObject {
 
 		}
 	}
+
+
 
 }

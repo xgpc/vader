@@ -36,6 +36,7 @@ public class run extends Frame {
 	private static final int GAME_OVER = 4;
 
 	private int score = 0; // 得分
+	private int boom = 1; // 炸弹
 	private Timer timer; // 定时器
 	private int intervel = 40; // 时间间隔(毫秒)
 	private int intervaltime = 50; // 400毫秒生成一个飞行物--10*40
@@ -62,16 +63,25 @@ public class run extends Frame {
 	public static BufferedImage fj2;
 	public static BufferedImage fj3;
 	public static BufferedImage fj4;
+
+	public static BufferedImage ezd1;
+	public static BufferedImage ezd2;
+	public static BufferedImage ezd3;
 	
-	public static BufferedImage zd;
+	public static BufferedImage zd1;
+	public static BufferedImage zd2;
+	public static BufferedImage zd3;
+	public static BufferedImage zd4;
 
 	// 飞行物入场计数
 	private int flyEnteredIndex = 0;
 
 	// 主角
 	private List<Hero> heros = new ArrayList<Hero>();
+	
 	// 飞行物
 	private List<FlyingObject> enemys = new ArrayList<FlyingObject>();
+	
 	// 子弹
 	private List<Bullet> bullets = new ArrayList<Bullet>();
 
@@ -79,6 +89,8 @@ public class run extends Frame {
 	private List<Bullet> enemy_bullets = new ArrayList<Bullet>();
 	
 	public boolean space;
+
+	private int attacknum = 0;
 
 	static {
 		try {
@@ -98,8 +110,15 @@ public class run extends Frame {
 			fj2 = ImageIO.read(new File("images/fj2.png"));
 			fj3 = ImageIO.read(new File("images/fj3.png"));
 			fj4 = ImageIO.read(new File("images/fj4.png"));
+
+			ezd1 = ImageIO.read(new File("images/ezd1.png"));
+			ezd2 = ImageIO.read(new File("images/ezd2.png"));
+			ezd3 = ImageIO.read(new File("images/ezd3.png"));
 			
-			zd = ImageIO.read(new File("images/zd.png"));
+			zd1 = ImageIO.read(new File("images/zd1.png"));
+			zd2 = ImageIO.read(new File("images/zd2.png"));
+			zd3 = ImageIO.read(new File("images/zd3.png"));
+			zd4 = ImageIO.read(new File("images/zd4.png"));
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -131,6 +150,13 @@ public class run extends Frame {
 
 		this.heros.add(h1);
 		this.heros.add(h2);
+		
+		for (int i = 0; i < heros.size(); i++) {
+			heros.get(i).setZd1(zd1);
+			heros.get(i).setZd2(zd2);
+			heros.get(i).setZd3(zd3);
+			heros.get(i).setZd4(zd4);
+		}
 
 		addKeyListener(new KeyMonitor()); // 监听键盘
 		this.addWindowListener(new WindowAdapter() {
@@ -177,10 +203,8 @@ public class run extends Frame {
 	}
 
 	// 关联键盘按键
-	public void PressKey(KeyEvent e) {
-
-		System.out.println("按下: " + e.getKeyChar());
-		System.out.println("feiji: " + heros.get(0).up);
+	public void PressKey(KeyEvent e) { 
+//		System.out.println("按下-:" + e.getKeyChar());
 		switch (e.getKeyCode()) {
 		case KeyEvent.VK_SPACE:
 			space = true;
@@ -197,6 +221,12 @@ public class run extends Frame {
 		case KeyEvent.VK_RIGHT:
 			this.heros.get(0).setright(true);
 			break;
+		case KeyEvent.VK_NUMPAD2:
+			this.heros.get(0).setFire(true);
+			break;	
+		case KeyEvent.VK_NUMPAD3:
+			this.heros.get(0).boom = true;
+			break;
 		case KeyEvent.VK_W:
 			this.heros.get(1).up = true;
 			break;
@@ -209,10 +239,17 @@ public class run extends Frame {
 		case KeyEvent.VK_D:
 			this.heros.get(1).right = true;
 			break;
+		case KeyEvent.VK_J:
+			this.heros.get(1).fire = true;
+			break;
+		case KeyEvent.VK_K:
+			this.heros.get(1).boom = true;
+			break;
 		}
 	}
 
 	public void ReleasedKey(KeyEvent e) {
+//		System.out.println("抬起-:" + e.getKeyChar());
 		switch (e.getKeyCode()) {
 		case KeyEvent.VK_UP:
 			this.heros.get(0).up = false;
@@ -226,6 +263,12 @@ public class run extends Frame {
 		case KeyEvent.VK_RIGHT:
 			this.heros.get(0).right = false;
 			break;
+		case KeyEvent.VK_NUMPAD2:
+			this.heros.get(0).fire = false;
+			break;	
+		case KeyEvent.VK_NUMPAD3:
+			this.heros.get(0).boom = false;
+			break;
 		case KeyEvent.VK_W:
 			this.heros.get(1).up = false;
 			break;
@@ -237,6 +280,12 @@ public class run extends Frame {
 			break;
 		case KeyEvent.VK_D:
 			this.heros.get(1).right = false;
+			break;
+		case KeyEvent.VK_J:
+			this.heros.get(1).fire = false;
+			break;
+		case KeyEvent.VK_K:
+			this.heros.get(1).boom = false;
 			break;
 		}
 	}
@@ -258,6 +307,7 @@ public class run extends Frame {
 			this.heros.get(0).addlife();
 			this.heros.get(0).addlife();
 			this.flyEnteredIndex = 0;
+			this.attacknum = 0;
 			this.space = false;
 			this.state = RUNNING;
 
@@ -284,7 +334,13 @@ public class run extends Frame {
 
 			// 物体移动
 			objectstep();
-
+			
+			//攻击
+			objectgo();
+			
+			//碰撞检测
+			bangAction();
+			
 			// 清理越界
 			outOfBoundsAction();
 
@@ -302,6 +358,55 @@ public class run extends Frame {
 				this.state = MENU;
 			}
 			break;
+		}
+	}
+	
+	private void bangAction() {
+		//子弹检测
+		for (int i = 0; i < bullets.size(); i++) {
+			Bullet b = bullets.get(i);
+			
+			for (int j = 0; i < enemys.size(); i++) {
+				Enemy e = (Enemy)enemys.get(j);
+				
+				if (b.collision(e) == true) {
+					bullets.remove(b);
+					break;
+				}
+				
+			}
+		}
+		
+		//撞机检测
+		for (int i = 0; i < enemys.size(); i++) {
+			
+		}
+	}
+	
+	private void objectgo() {
+		attacknum++;
+		// 英雄攻击
+		for (int i = 0; i < heros.size(); i++) {
+			Hero h = heros.get(i);
+			
+			//控制攻击平率
+			if( attacknum % h.getAttackspeed() == 0) {
+//				System.out.println(attacknum+ "---" + h.getAttackspeed() + "---" + attacknum % h.getAttackspeed()+ "---" + h.fire);		
+				Bullet b = h.attack(); 
+				if(b != null) { 
+					this.bullets.add(b);
+				}
+			}
+			
+			//使用炸弹
+			if (h.Boom()) {
+				if(this.boom == 0) {
+					continue;
+				}
+				this.enemy_bullets.clear();
+				this.enemys.clear();
+				this.boom--;
+			}
 		}
 	}
 
@@ -400,6 +505,7 @@ public class run extends Frame {
 			bullets.get(i).step();
 		}
 		
+		//敌机子弹移动
 		for (int i = 0; i < this.enemy_bullets.size(); i++) {
 			enemy_bullets.get(i).step();
 		}
@@ -437,16 +543,18 @@ public class run extends Frame {
 
 	/** 画子弹 */
 	public void paintBullets(Graphics g) {
+		
+//		System.out.println("子弹数:  " + bullets.size());
 		for (int i = 0; i < bullets.size(); i++) {
 			Bullet b = bullets.get(i);
-			g.drawImage(b.getImage(), b.getX() - b.getWidth() / 2, b.getY(), null);
-			g.drawRect(b.getX(), b.getY(), b.getImage().getWidth(), b.getImage().getHeight()); //FIX: 范围
+			g.drawImage(b.getImage(), b.getX() - b.getImage().getWidth() / 2, b.getY(), null);
+			g.drawRect(b.getX() - b.getImage().getWidth() / 2, b.getY(), b.getImage().getWidth(), b.getImage().getHeight()); //FIX: 范围
 		}
 		
 		for (int i = 0; i < enemy_bullets.size(); i++) {
 			Bullet b = enemy_bullets.get(i);
-			g.drawImage(b.getImage(), b.getX() - b.getWidth() / 2, b.getY(), null);
-			g.drawRect(b.getX(), b.getY(), b.getImage().getWidth(), b.getImage().getHeight()); //FIX: 范围
+			g.drawImage(b.getImage(), b.getX() - b.getImage().getWidth() / 2, b.getY(), null);
+			g.drawRect(b.getX() - b.getImage().getWidth() / 2, b.getY(), b.getImage().getWidth(), b.getImage().getHeight()); //FIX: 范围
 		}
 		
 	}
@@ -467,7 +575,7 @@ public class run extends Frame {
 		Font font = new Font(Font.SANS_SERIF, Font.BOLD, 22); // 字体
 		g.setColor(new Color(0xFF0000));
 		g.setFont(font); // 设置字体
-		g.drawString("SCORE:" + score, x, y); // 画分数
+		g.drawString("SCORE:" + score + "   炸弹:"+ boom, x, y); // 画分数 炸弹
 
 		for (int i = 0; i < heros.size(); i++) {
 			y = y + 20; // y坐标增20

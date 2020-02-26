@@ -6,8 +6,10 @@ import java.awt.image.BufferedImage;
 public abstract class FlyingObject {
 	protected int x;    //x×ø±ê
 	protected int y;    //y×ø±ê
-	protected int width;    //¿í
-	protected int height;   //¸ß
+	protected int width;    //±ß¿ò¿í
+	protected int height;   //±ä¿í¸ß
+	
+	
 	protected BufferedImage image;   //Í¼Æ¬
 	
 
@@ -51,7 +53,7 @@ public abstract class FlyingObject {
 	public boolean collision(FlyingObject f) {
 		int x = f.x;  //ºá×ø±ê
 		int y = f.y;  //×Ý×ø±ê
-		return this.x<x && x<this.x+width && this.y<y && y<this.y+height;
+		return this.x<x && x<this.x+image.getWidth() && this.y<y && y<this.y+image.getHeight();
 	}
 	
 	public void setImage(BufferedImage image) {
@@ -63,7 +65,5 @@ public abstract class FlyingObject {
 
 	//	ÒÆ¶¯
 	public abstract void step();
-	
-
-	
+		
 }

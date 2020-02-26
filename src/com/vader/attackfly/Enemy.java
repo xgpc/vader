@@ -53,7 +53,6 @@ public class Enemy extends FlyingObject {
 	/** //越界处理 */
 	@Override
 	public boolean outOfBounds() {
-		System.out.println("飞机 : "+ y + "--" + this.height);
 		return y > this.height;
 	}
 
