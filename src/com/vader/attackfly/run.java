@@ -22,8 +22,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 public class run extends Frame {
-	public static final int WIDTH = 400; // 面板宽
-	public static final int HEIGHT = 654; // 面板高
 
 	// 窗口 中心
 	private int windows_X = this.getWidth() / 2;
@@ -40,6 +38,7 @@ public class run extends Frame {
 	private int score = 0; // 得分
 	private Timer timer; // 定时器
 	private int intervel = 40; // 时间间隔(毫秒)
+	private int intervaltime = 50; // 400毫秒生成一个飞行物--10*40
 
 	// 资源加载
 	public static BufferedImage background; // 背景
@@ -63,7 +62,9 @@ public class run extends Frame {
 	public static BufferedImage fj2;
 	public static BufferedImage fj3;
 	public static BufferedImage fj4;
-	public static BufferedImage fj5;
+
+	// 飞行物入场计数
+	private int flyEnteredIndex = 0;
 
 	// 主角
 	private List<Hero> heros = new ArrayList<Hero>();
@@ -92,7 +93,6 @@ public class run extends Frame {
 			fj2 = ImageIO.read(new File("images/fj2.png"));
 			fj3 = ImageIO.read(new File("images/fj3.png"));
 			fj4 = ImageIO.read(new File("images/fj4.png"));
-			fj5 = ImageIO.read(new File("images/fj5.png"));
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -246,6 +246,7 @@ public class run extends Frame {
 			this.heros.get(0).addlife();
 			this.heros.get(0).addlife();
 			this.heros.get(0).addlife();
+			this.flyEnteredIndex = 0;
 			this.space = false;
 			this.state = RUNNING;
 
@@ -273,6 +274,9 @@ public class run extends Frame {
 			// 物体移动
 			objectstep();
 
+			// 清理越界
+			outOfBoundsAction();
+
 			break;
 
 		case PAUSE: // 暂停状态
@@ -290,59 +294,87 @@ public class run extends Frame {
 		}
 	}
 
-	int flyEnteredIndex = 0; // 飞行物入场计数
-
 	private void createEnemy() {
 		flyEnteredIndex++;
-		if (flyEnteredIndex % 40 == 0) { // 400毫秒生成一个飞行物--10*40
+
+		if (flyEnteredIndex % intervaltime == 0) {
 			FlyingObject obj = nextOne(); // 随机生成一个飞行物
+
+			// 设置飞行物的 界面边框
+			obj.setHeight(this.background.getHeight());
+			obj.setWidth(this.background.getWidth());
 			this.enemys.add(obj);
 		}
 	}
 
+	private boolean isBoss = false;
+
 	private FlyingObject nextOne() {
 		Random random = new Random();
 		int type = random.nextInt(20); // [0,20)
-
 		Enemy e = new Enemy();
-		if (type < 4) {
-			
+
+		if (type < 8) {
 			e.setImage(this.fj1);
 			e.setBulletType(0);
 			e.setLife(3);
-			
-		} else if (type < 9) {
-			
+
+		} else if (type < 12) {
 			e.setImage(this.fj2);
 			e.setBulletType(0);
 			e.setLife(4);
-			
+
 		} else if (type < 13) {
-			
 			e.setImage(this.fj3);
 			e.setBulletType(1);
-			e.setLife(4);
-			
-		} else if (type < 16) {
-			
+			e.setLife(10);
+		} else if (type < 20) {
+
+			if ((type == 19) && (isBoss != true)) {
+				SetBoss(e);
+				isBoss = true;
+				return e;
+			}
 			e.setImage(this.fj4);
 			e.setBulletType(2);
-			e.setLife(10);
-			
-		} else if (type < 19) {
-			
-			e.setImage(this.fj5);
-			e.setBulletType(3);
-			e.setLife(10);
-			
-		} else if (type == 19) {
-			
-			SetBoss(e);
+			e.setLife(15);
 		}
+
+		e.setX(random.nextInt(this.background.getWidth() - e.getImage().getWidth()) + 10);
+
 		return e;
 	}
 
 	private void SetBoss(Enemy e) {
+
+		Random random = new Random();
+		int type = random.nextInt(4); // [0,4)
+		switch (type) {
+		case 0:
+			e.setImage(this.boss1);
+			break;
+		case 1:
+			e.setImage(this.boss2);
+			break;
+		case 2:
+			e.setImage(this.boss3);
+			break;
+		case 3:
+			e.setImage(this.boss4);
+			break;
+
+		default:
+			break;
+		}
+
+		e.setBoos(true);
+		e.setLife(200);
+		e.setScore(100);
+		e.setSpeed(1);
+		e.setBoos(true);
+
+		// 设置Boss位置居中
+		e.setX(this.windows_X - e.getImage().getWidth() / 2);
 		e.setBulletType(10);
 	}
 
@@ -477,6 +509,31 @@ public class run extends Frame {
 			Scorecard s = scorecards.get(i);
 			g.drawString(s.getBody(), s.x, s.y);
 		}
+	}
+
+	/** 删除越界飞行物及子弹 */
+	public void outOfBoundsAction() {
+		// 飞行物
+		List<FlyingObject> buf_enemys = new ArrayList<FlyingObject>();
+		// 子弹
+		List<Bullet> buf_bullets = new ArrayList<Bullet>();
+
+		for (int i = 0; i < this.enemys.size(); i++) {
+			FlyingObject f = enemys.get(i);
+			if (!f.outOfBounds()) {
+				buf_enemys.add(f);
+			}
+		}
+
+		for (int i = 0; i < this.bullets.size(); i++) {
+			Bullet f = bullets.get(i);
+			if (!f.outOfBounds()) {
+				buf_bullets.add(f);
+			}
+		}
+
+		this.enemys = buf_enemys;
+		this.bullets = buf_bullets;
 	}
 
 	/**

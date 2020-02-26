@@ -47,6 +47,13 @@ public abstract class FlyingObject {
 		return image;
 	}
 
+	// Åö×²¼ì²â
+	public boolean collision(FlyingObject f) {
+		int x = f.x;  //ºá×ø±ê
+		int y = f.y;  //×Ý×ø±ê
+		return this.x<x && x<this.x+width && this.y<y && y<this.y+height;
+	}
+	
 	public void setImage(BufferedImage image) {
 		this.image = image;
 	}
@@ -57,11 +64,6 @@ public abstract class FlyingObject {
 	//	ÒÆ¶¯
 	public abstract void step();
 	
-	// Åö×²¼ì²â
-	public boolean collision(FlyingObject f) {
-		int x = f.x;  //ºá×ø±ê
-		int y = f.y;  //×Ý×ø±ê
-		return this.x<x && x<this.x+width && this.y<y && y<this.y+height;
-	}
+
 	
 }

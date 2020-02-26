@@ -20,7 +20,7 @@ public class Bullet extends FlyingObject{
 	@Override
 	public boolean outOfBounds( ) {
 		// TODO Auto-generated method stub
-		return y<-height;
+		return ((y < 0) && (y > this.height) && (x < 0) && (x > this.width));
 	}
 
 	//运行方式 垂直向下
