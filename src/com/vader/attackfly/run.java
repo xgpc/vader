@@ -62,6 +62,8 @@ public class run extends Frame {
 	public static BufferedImage fj2;
 	public static BufferedImage fj3;
 	public static BufferedImage fj4;
+	
+	public static BufferedImage zd;
 
 	// 飞行物入场计数
 	private int flyEnteredIndex = 0;
@@ -73,6 +75,9 @@ public class run extends Frame {
 	// 子弹
 	private List<Bullet> bullets = new ArrayList<Bullet>();
 
+	//飞行物子弹
+	private List<Bullet> enemy_bullets = new ArrayList<Bullet>();
+	
 	public boolean space;
 
 	static {
@@ -93,6 +98,8 @@ public class run extends Frame {
 			fj2 = ImageIO.read(new File("images/fj2.png"));
 			fj3 = ImageIO.read(new File("images/fj3.png"));
 			fj4 = ImageIO.read(new File("images/fj4.png"));
+			
+			zd = ImageIO.read(new File("images/zd.png"));
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -114,9 +121,13 @@ public class run extends Frame {
 		// 初始化玩家
 		Hero h1 = new Hero(windows_X - this.hero0.getHeight() / 2, this.getHeight() - 100);
 		h1.setImage(this.hero0);
+		h1.setHeight(this.background.getHeight());
+		h1.setWidth(this.background.getWidth());
 
 		Hero h2 = new Hero(0, 0);
 		h2.setImage(this.hero1);
+		h2.setHeight(this.background.getHeight());
+		h2.setWidth(this.background.getWidth());
 
 		this.heros.add(h1);
 		this.heros.add(h2);
@@ -388,6 +399,11 @@ public class run extends Frame {
 		for (int i = 0; i < this.bullets.size(); i++) {
 			bullets.get(i).step();
 		}
+		
+		for (int i = 0; i < this.enemy_bullets.size(); i++) {
+			enemy_bullets.get(i).step();
+		}
+	
 
 		// 飞行物移动
 		for (int i = 0; i < enemys.size(); i++) {
@@ -409,7 +425,7 @@ public class run extends Frame {
 	}
 
 	/** 画英雄机 */
-	public void paintHero(Graphics g) {
+	public void paintHero(Graphics g) {		
 		for (int i = 0; i < heros.size(); i++) {
 			Hero hero = heros.get(i);
 			if (hero.getLife() != 0) {
@@ -424,7 +440,15 @@ public class run extends Frame {
 		for (int i = 0; i < bullets.size(); i++) {
 			Bullet b = bullets.get(i);
 			g.drawImage(b.getImage(), b.getX() - b.getWidth() / 2, b.getY(), null);
+			g.drawRect(b.getX(), b.getY(), b.getImage().getWidth(), b.getImage().getHeight()); //FIX: 范围
 		}
+		
+		for (int i = 0; i < enemy_bullets.size(); i++) {
+			Bullet b = enemy_bullets.get(i);
+			g.drawImage(b.getImage(), b.getX() - b.getWidth() / 2, b.getY(), null);
+			g.drawRect(b.getX(), b.getY(), b.getImage().getWidth(), b.getImage().getHeight()); //FIX: 范围
+		}
+		
 	}
 
 	/** 画飞行物 */
@@ -432,6 +456,7 @@ public class run extends Frame {
 		for (int i = 0; i < enemys.size(); i++) {
 			FlyingObject f = enemys.get(i);
 			g.drawImage(f.getImage(), f.getX(), f.getY(), null);
+			g.drawRect(f.getX(), f.getY(), f.getImage().getWidth(), f.getImage().getHeight()); //FIX: 范围
 		}
 	}
 
@@ -517,7 +542,9 @@ public class run extends Frame {
 		List<FlyingObject> buf_enemys = new ArrayList<FlyingObject>();
 		// 子弹
 		List<Bullet> buf_bullets = new ArrayList<Bullet>();
-
+		// 飞行物子弹
+		List<Bullet> buf_enemy_bullets = new ArrayList<Bullet>();
+		
 		for (int i = 0; i < this.enemys.size(); i++) {
 			FlyingObject f = enemys.get(i);
 			if (!f.outOfBounds()) {
@@ -531,9 +558,17 @@ public class run extends Frame {
 				buf_bullets.add(f);
 			}
 		}
+		
+		for (int i = 0; i < this.enemy_bullets.size(); i++) {
+			Bullet f = enemy_bullets.get(i);
+			if (!f.outOfBounds()) {
+				buf_enemy_bullets.add(f);
+			}
+		}
 
 		this.enemys = buf_enemys;
 		this.bullets = buf_bullets;
+		this.enemy_bullets = buf_enemy_bullets;
 	}
 
 	/**
