@@ -67,7 +67,7 @@ public class run extends Frame {
 	public static BufferedImage ezd1;
 	public static BufferedImage ezd2;
 	public static BufferedImage ezd3;
-	
+
 	public static BufferedImage zd1;
 	public static BufferedImage zd2;
 	public static BufferedImage zd3;
@@ -78,16 +78,16 @@ public class run extends Frame {
 
 	// 主角
 	private List<Hero> heros = new ArrayList<Hero>();
-	
+
 	// 飞行物
 	private List<FlyingObject> enemys = new ArrayList<FlyingObject>();
-	
+
 	// 子弹
 	private List<Bullet> bullets = new ArrayList<Bullet>();
 
-	//飞行物子弹
+	// 飞行物子弹
 	private List<Bullet> enemy_bullets = new ArrayList<Bullet>();
-	
+
 	public boolean space;
 
 	private int attacknum = 0;
@@ -114,7 +114,7 @@ public class run extends Frame {
 			ezd1 = ImageIO.read(new File("images/ezd1.png"));
 			ezd2 = ImageIO.read(new File("images/ezd2.png"));
 			ezd3 = ImageIO.read(new File("images/ezd3.png"));
-			
+
 			zd1 = ImageIO.read(new File("images/zd1.png"));
 			zd2 = ImageIO.read(new File("images/zd2.png"));
 			zd3 = ImageIO.read(new File("images/zd3.png"));
@@ -150,7 +150,7 @@ public class run extends Frame {
 
 		this.heros.add(h1);
 		this.heros.add(h2);
-		
+
 		for (int i = 0; i < heros.size(); i++) {
 			heros.get(i).setZd1(zd1);
 			heros.get(i).setZd2(zd2);
@@ -203,7 +203,7 @@ public class run extends Frame {
 	}
 
 	// 关联键盘按键
-	public void PressKey(KeyEvent e) { 
+	public void PressKey(KeyEvent e) {
 //		System.out.println("按下-:" + e.getKeyChar());
 		switch (e.getKeyCode()) {
 		case KeyEvent.VK_SPACE:
@@ -223,7 +223,7 @@ public class run extends Frame {
 			break;
 		case KeyEvent.VK_NUMPAD2:
 			this.heros.get(0).setFire(true);
-			break;	
+			break;
 		case KeyEvent.VK_NUMPAD3:
 			this.heros.get(0).boom = true;
 			break;
@@ -265,7 +265,7 @@ public class run extends Frame {
 			break;
 		case KeyEvent.VK_NUMPAD2:
 			this.heros.get(0).fire = false;
-			break;	
+			break;
 		case KeyEvent.VK_NUMPAD3:
 			this.heros.get(0).boom = false;
 			break;
@@ -334,13 +334,13 @@ public class run extends Frame {
 
 			// 物体移动
 			objectstep();
-			
-			//攻击
+
+			// 攻击
 			objectgo();
-			
-			//碰撞检测
+
+			// 碰撞检测
 			bangAction();
-			
+
 			// 清理越界
 			outOfBoundsAction();
 
@@ -360,47 +360,68 @@ public class run extends Frame {
 			break;
 		}
 	}
-	
+
+	// 碰撞检测
 	private void bangAction() {
-		//子弹检测
-		for (int i = 0; i < bullets.size(); i++) {
-			Bullet b = bullets.get(i);
-			
-			for (int j = 0; i < enemys.size(); i++) {
-				Enemy e = (Enemy)enemys.get(j);
-				
-				if (b.collision(e) == true) {
-					bullets.remove(b);
+
+		// 撞机检测
+
+		for (int j = 0; j < bullets.size(); j++) {
+			Bullet b = bullets.get(j);
+
+			for (int i = 0; i < enemys.size(); i++) {
+				Enemy e = (Enemy) enemys.get(i);
+
+				if (e.collision(b) == false) {
+					continue;
+				}
+				// 子弹消失
+				bullets.remove(b);
+				// TODO: 子弹爆炸特效
+
+				//
+				if (e.subLife(b.getFire()) < 0) {
+					enemys.remove(e);
 					break;
 				}
-				
 			}
+
 		}
-		
-		//撞机检测
-		for (int i = 0; i < enemys.size(); i++) {
-			
-		}
+
+//		// 子弹检测
+//		for (int i = 0; i < bullets.size(); i++) {
+//			Bullet b = bullets.get(i);
+//
+//			for (int j = 0; i < enemys.size(); i++) {
+//				Enemy e = (Enemy) enemys.get(j);
+//
+//				if (b.collision(e) == true) {
+//					bullets.remove(b);
+//					break;
+//				}
+//			}
+//		}
+
 	}
-	
+
 	private void objectgo() {
 		attacknum++;
 		// 英雄攻击
 		for (int i = 0; i < heros.size(); i++) {
 			Hero h = heros.get(i);
-			
-			//控制攻击平率
-			if( attacknum % h.getAttackspeed() == 0) {
+
+			// 控制攻击平率
+			if (attacknum % h.getAttackspeed() == 0) {
 //				System.out.println(attacknum+ "---" + h.getAttackspeed() + "---" + attacknum % h.getAttackspeed()+ "---" + h.fire);		
-				Bullet b = h.attack(); 
-				if(b != null) { 
+				Bullet b = h.attack();
+				if (b != null) {
 					this.bullets.add(b);
 				}
 			}
-			
-			//使用炸弹
+
+			// 使用炸弹
 			if (h.Boom()) {
-				if(this.boom == 0) {
+				if (this.boom == 0) {
 					continue;
 				}
 				this.enemy_bullets.clear();
@@ -504,12 +525,11 @@ public class run extends Frame {
 		for (int i = 0; i < this.bullets.size(); i++) {
 			bullets.get(i).step();
 		}
-		
-		//敌机子弹移动
+
+		// 敌机子弹移动
 		for (int i = 0; i < this.enemy_bullets.size(); i++) {
 			enemy_bullets.get(i).step();
 		}
-	
 
 		// 飞行物移动
 		for (int i = 0; i < enemys.size(); i++) {
@@ -531,7 +551,7 @@ public class run extends Frame {
 	}
 
 	/** 画英雄机 */
-	public void paintHero(Graphics g) {		
+	public void paintHero(Graphics g) {
 		for (int i = 0; i < heros.size(); i++) {
 			Hero hero = heros.get(i);
 			if (hero.getLife() != 0) {
@@ -543,20 +563,22 @@ public class run extends Frame {
 
 	/** 画子弹 */
 	public void paintBullets(Graphics g) {
-		
+
 //		System.out.println("子弹数:  " + bullets.size());
 		for (int i = 0; i < bullets.size(); i++) {
 			Bullet b = bullets.get(i);
 			g.drawImage(b.getImage(), b.getX() - b.getImage().getWidth() / 2, b.getY(), null);
-			g.drawRect(b.getX() - b.getImage().getWidth() / 2, b.getY(), b.getImage().getWidth(), b.getImage().getHeight()); //FIX: 范围
+			g.drawRect(b.getX() - b.getImage().getWidth() / 2, b.getY(), b.getImage().getWidth(),
+					b.getImage().getHeight()); // FIX: 范围
 		}
-		
+
 		for (int i = 0; i < enemy_bullets.size(); i++) {
 			Bullet b = enemy_bullets.get(i);
 			g.drawImage(b.getImage(), b.getX() - b.getImage().getWidth() / 2, b.getY(), null);
-			g.drawRect(b.getX() - b.getImage().getWidth() / 2, b.getY(), b.getImage().getWidth(), b.getImage().getHeight()); //FIX: 范围
+			g.drawRect(b.getX() - b.getImage().getWidth() / 2, b.getY(), b.getImage().getWidth(),
+					b.getImage().getHeight()); // FIX: 范围
 		}
-		
+
 	}
 
 	/** 画飞行物 */
@@ -564,7 +586,7 @@ public class run extends Frame {
 		for (int i = 0; i < enemys.size(); i++) {
 			FlyingObject f = enemys.get(i);
 			g.drawImage(f.getImage(), f.getX(), f.getY(), null);
-			g.drawRect(f.getX(), f.getY(), f.getImage().getWidth(), f.getImage().getHeight()); //FIX: 范围
+			g.drawRect(f.getX(), f.getY(), f.getImage().getWidth(), f.getImage().getHeight()); // FIX: 范围
 		}
 	}
 
@@ -575,7 +597,7 @@ public class run extends Frame {
 		Font font = new Font(Font.SANS_SERIF, Font.BOLD, 22); // 字体
 		g.setColor(new Color(0xFF0000));
 		g.setFont(font); // 设置字体
-		g.drawString("SCORE:" + score + "   炸弹:"+ boom, x, y); // 画分数 炸弹
+		g.drawString("SCORE:" + score + "   炸弹:" + boom, x, y); // 画分数 炸弹
 
 		for (int i = 0; i < heros.size(); i++) {
 			y = y + 20; // y坐标增20
@@ -652,7 +674,7 @@ public class run extends Frame {
 		List<Bullet> buf_bullets = new ArrayList<Bullet>();
 		// 飞行物子弹
 		List<Bullet> buf_enemy_bullets = new ArrayList<Bullet>();
-		
+
 		for (int i = 0; i < this.enemys.size(); i++) {
 			FlyingObject f = enemys.get(i);
 			if (!f.outOfBounds()) {
@@ -666,7 +688,7 @@ public class run extends Frame {
 				buf_bullets.add(f);
 			}
 		}
-		
+
 		for (int i = 0; i < this.enemy_bullets.size(); i++) {
 			Bullet f = enemy_bullets.get(i);
 			if (!f.outOfBounds()) {

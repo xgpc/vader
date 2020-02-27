@@ -45,6 +45,11 @@ public class Enemy extends FlyingObject {
 	public void setLife(int life) {
 		this.life = life;
 	}
+	
+	public int subLife(int life) {
+		this.life-=life;
+		return this.life;
+	}
 
 	public void setScore(int score) {
 		this.score = score;

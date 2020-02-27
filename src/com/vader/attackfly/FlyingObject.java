@@ -51,9 +51,18 @@ public abstract class FlyingObject {
 
 	// Åö×²¼ì²â
 	public boolean collision(FlyingObject f) {
-		int x = f.x;  //ºá×ø±ê
-		int y = f.y;  //×Ý×ø±ê
-		return this.x<x && x<this.x+image.getWidth() && this.y<y && y<this.y+image.getHeight();
+		boolean b = true;
+		if(f.y > this.y + this.image.getHeight()) {
+			b =  false;
+		}else if(f.x < this.x){
+			b = false;
+		}else if(f.x + f.image.getWidth() > this.x + this.image.getWidth()){
+			b = false;
+		}else if(f.y + f.image.getHeight() < this.y){
+			b = false;
+		}
+		return b;
+//		return this.x<x && x<this.x+image.getWidth() && this.y<y && y<this.y+image.getHeight();
 	}
 	
 	public void setImage(BufferedImage image) {

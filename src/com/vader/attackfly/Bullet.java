@@ -9,13 +9,25 @@ package com.vader.attackfly;
 public class Bullet extends FlyingObject{
 	private int speed = 15; //子弹速度
 	private int type = 0;
+	private int fire = 1;
 	
 	
 	public Bullet(int x, int y) {
 		this.x = x;
 		this.y = y;
 	}
+
 	
+	public int getFire() {
+		return fire;
+	}
+
+
+	public void setFire(int fire) {
+		this.fire = fire;
+	}
+
+
 	//越界
 	@Override
 	public boolean outOfBounds( ) {
