@@ -7,7 +7,7 @@ public class Hero extends FlyingObject {
 	private int bulletType; // 子弹类型
 	private int life; // 命
 	private int speed; // 速度
-	private int attackspeed = 10;
+	private int attackspeed = 8;
 
 	public boolean up, down, left, right = false;
 	public boolean fire, boom = false;
@@ -194,6 +194,21 @@ public class Hero extends FlyingObject {
 		}
 	}
 
+//	@Override
+//	public boolean collision(FlyingObject f) {
+//		//飞机的四个点
+//		boolean b = false;
+//
+//		int xl = Math.abs(this.x - f.x) ;
+//		int yl = Math.abs(this.y - f.y) ;
+//		
+//		if((xl < this.image.getWidth()) && (yl < this.image.getHeight())){
+//			b= true;
+//		}
+//		
+//		return b;
+//	}
 
+	
 
 }

@@ -179,7 +179,7 @@ public class run extends Frame {
 
 		@Override
 		public void keyReleased(KeyEvent e) {
-			System.out.println(e.getKeyCode());
+//			System.out.println(e.getKeyCode());
 			ReleasedKey(e);
 		}
 	}
@@ -364,11 +364,10 @@ public class run extends Frame {
 	// Åö×²¼ì²â
 	private void bangAction() {
 
-		// ×²»ú¼ì²â
 
+		// ×Óµ¯¼ì²â
 		for (int j = 0; j < bullets.size(); j++) {
 			Bullet b = bullets.get(j);
-
 			for (int i = 0; i < enemys.size(); i++) {
 				Enemy e = (Enemy) enemys.get(i);
 
@@ -381,26 +380,29 @@ public class run extends Frame {
 
 				//
 				if (e.subLife(b.getFire()) < 0) {
+					this.score += e.getScore();
+					if(e.isBoos()) {
+						this.isBoss = false;
+					}
 					enemys.remove(e);
 					break;
 				}
 			}
-
 		}
 
-//		// ×Óµ¯¼ì²â
-//		for (int i = 0; i < bullets.size(); i++) {
-//			Bullet b = bullets.get(i);
-//
-//			for (int j = 0; i < enemys.size(); i++) {
-//				Enemy e = (Enemy) enemys.get(j);
-//
-//				if (b.collision(e) == true) {
-//					bullets.remove(b);
-//					break;
-//				}
-//			}
-//		}
+		// ×²»ú¼ì²â
+		for (int i = 0; i < heros.size(); i++) {
+			Hero h = heros.get(i);
+			for (int j = 0; j < enemys.size(); j++) {
+				Enemy e = (Enemy) enemys.get(j);
+				if (h.collision(e) == false) {
+					continue;
+				}
+				System.out.println("pengdao");
+				
+				
+			}
+		}
 
 	}
 
@@ -424,8 +426,17 @@ public class run extends Frame {
 				if (this.boom == 0) {
 					continue;
 				}
+				
 				this.enemy_bullets.clear();
-				this.enemys.clear();
+				for (int j = 0; j < enemys.size(); j++) {
+					Enemy e = (Enemy)enemys.get(j);
+					if(e.isBoos()== true) {
+						continue;
+					}
+					enemys.remove(e);
+				}
+								
+				
 				this.boom--;
 			}
 		}
@@ -454,17 +465,17 @@ public class run extends Frame {
 		if (type < 8) {
 			e.setImage(this.fj1);
 			e.setBulletType(0);
-			e.setLife(3);
+			e.setLife(2);
 
 		} else if (type < 12) {
 			e.setImage(this.fj2);
 			e.setBulletType(0);
-			e.setLife(4);
+			e.setLife(3);
 
 		} else if (type < 13) {
 			e.setImage(this.fj3);
 			e.setBulletType(1);
-			e.setLife(10);
+			e.setLife(4);
 		} else if (type < 20) {
 
 			if ((type == 19) && (isBoss != true)) {
@@ -474,7 +485,7 @@ public class run extends Frame {
 			}
 			e.setImage(this.fj4);
 			e.setBulletType(2);
-			e.setLife(15);
+			e.setLife(4);
 		}
 
 		e.setX(random.nextInt(this.background.getWidth() - e.getImage().getWidth()) + 10);
@@ -505,8 +516,8 @@ public class run extends Frame {
 		}
 
 		e.setBoos(true);
-		e.setLife(200);
-		e.setScore(100);
+		e.setLife(20);
+		e.setScore(20);
 		e.setSpeed(1);
 		e.setBoos(true);
 
@@ -644,7 +655,7 @@ public class run extends Frame {
 	public void setscorecards() {
 		for (int i = 0; i < 5; i++) {
 			Scorecard s = new Scorecard();
-			s.setbody("Õ½»ú");
+			s.setbody("Õ½»ú ");
 			s.x = windows_X - 80;
 			s.y = windows_Y - 70 + (i * 40);
 			scorecards.add(s);
