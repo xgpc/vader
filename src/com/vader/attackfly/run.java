@@ -37,7 +37,7 @@ public class run extends Frame {
 	private static final int GAME_OVER = 4;
 
 	private int score = 0; // 得分
-	private int boom = 1; // 炸弹
+	private int boom = 0; // 炸弹
 	private Timer timer; // 定时器
 	private int intervel = 40; // 时间间隔(毫秒)
 	private int intervaltime = 50; // 400毫秒生成一个飞行物--10*40
@@ -74,7 +74,11 @@ public class run extends Frame {
 	public static BufferedImage zd3;
 	public static BufferedImage zd4;
 
+	public static BufferedImage HeroBoom;
+	public static BufferedImage HeroBoom1;
+
 	public static BufferedImage die;
+	public static BufferedImage Herolife;
 
 	// 飞行物入场计数
 	private int flyEnteredIndex = 0;
@@ -132,6 +136,9 @@ public class run extends Frame {
 			zd4 = ImageIO.read(new File("images/zd4.png"));
 
 			die = ImageIO.read(new File("images/die.png"));
+			Herolife = ImageIO.read(new File("images/life.png"));
+			HeroBoom = ImageIO.read(new File("images/boom.png"));
+			HeroBoom1 = ImageIO.read(new File("images/boom1.png"));
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -162,7 +169,6 @@ public class run extends Frame {
 		h2.setWidth(this.background.getWidth());
 
 		this.heros.add(h1);
-		this.heros.add(h2);
 
 		for (int i = 0; i < heros.size(); i++) {
 			heros.get(i).setZd1(zd1);
@@ -327,6 +333,8 @@ public class run extends Frame {
 			this.attacknum = 0;
 			this.space = false;
 			this.state = RUNNING;
+			this.score = 0;
+			this.boom = 1;
 
 			break;
 
@@ -433,8 +441,16 @@ public class run extends Frame {
 	}
 
 	private void objectgo() {
-		attacknum++;
 		// 英雄攻击
+		heroattack();
+		
+		// 敌机攻击
+		enemyattack();
+	
+	}
+	
+	private void heroattack() {
+		attacknum++;
 		for (int i = 0; i < heros.size(); i++) {
 			Hero h = heros.get(i);
 
@@ -467,6 +483,13 @@ public class run extends Frame {
 		}
 	}
 
+	private void enemyattack() {
+		for (int i = 0; i < this.enemys.size(); i++) {
+			Enemy e = (Enemy) this.enemys.get(i);
+			e.attack();
+		}
+	}
+	
 	private void createEnemy() {
 		flyEnteredIndex++;
 
@@ -634,12 +657,23 @@ public class run extends Frame {
 		Font font = new Font(Font.SANS_SERIF, Font.BOLD, 22); // 字体
 		g.setColor(new Color(0xFF0000));
 		g.setFont(font); // 设置字体
-		g.drawString("SCORE:" + score + "   炸弹:" + boom, x, y); // 画分数 炸弹
+		g.drawString("SCORE: " + score, x, y); // 画分数 炸弹
 
 		for (int i = 0; i < heros.size(); i++) {
-			y = y + 20; // y坐标增20
-			g.drawString(String.valueOf(i + 1) + "P LIFE:" + heros.get(i).getLife(), x, y); // 画命
+			// 画生命图标
+			y = y + 40; // y坐标增20
+			for (int j = 0; j < this.heros.get(i).getLife(); j++) {
+				g.drawImage(this.Herolife, x + (40 * j), y - this.Herolife.getHeight() + 10, null);
+			}
 		}
+
+		y += 30;
+
+		// 画炸弹图标
+		for (int j = 0; j < boom; j++) {
+			g.drawImage(this.HeroBoom, x + (40 * j), y - this.HeroBoom.getHeight() / 2, null);
+		}
+
 	}
 
 	/** 画游戏状态 */

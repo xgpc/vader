@@ -80,4 +80,11 @@ public class Enemy extends FlyingObject {
 		y += speed;		
 
 	}
+	
+	/**
+	 * ¹¥»÷·½Ê½
+	 */
+	public Bullet attack() {
+		return null;
+	}
 }
