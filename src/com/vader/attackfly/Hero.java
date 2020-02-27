@@ -11,13 +11,23 @@ public class Hero extends FlyingObject {
 
 	public boolean up, down, left, right = false;
 	public boolean fire, boom = false;
-
 	
+	private int invincible = 0;
 
 	public BufferedImage zd1;
 	public BufferedImage zd2;
 	public BufferedImage zd3;
 	public BufferedImage zd4;
+
+	
+	
+	public int getInvincible() {
+		return invincible;
+	}
+
+	public void setInvincible(int invincible) {
+		this.invincible = invincible;
+	}
 
 	public boolean isFire() {
 		return fire;
@@ -26,7 +36,7 @@ public class Hero extends FlyingObject {
 	public void setFire(boolean fire) {
 		this.fire = fire;
 	}
-	
+
 	public int getAttackspeed() {
 		return attackspeed;
 	}
@@ -104,6 +114,10 @@ public class Hero extends FlyingObject {
 
 	// 减命
 	public void subtractLife() {
+		//无敌的时候 飞机碰撞无效
+		if(this.invincible > 0 ) {
+			return;
+		}
 		this.life--;
 	}
 
@@ -116,19 +130,19 @@ public class Hero extends FlyingObject {
 	 * 发射子弹
 	 */
 	public Bullet attack() {
-		
+
 		if (this.fire == false) {
 			return null;
 		}
-		
-		Bullet b = new Bullet(this.x + this.getImage().getWidth()/2, this.y);
+
+		Bullet b = new Bullet(this.x + this.getImage().getWidth() / 2, this.y);
 		b.setHeight(this.height);
 		b.setWidth(this.width);
 		switch (this.bulletType) {
-		
+
 		case 0:
 			b.setImage(zd1);
-			
+
 			break;
 		case 1:
 			b.setImage(zd2);
@@ -159,10 +173,9 @@ public class Hero extends FlyingObject {
 	@Override
 	public void step() {
 		// TODO Auto-generated method stub
-//		System.out.println("up "+ this.up);
-//		System.out.println("down "+ this.down);
-//		System.out.println("left "+ this.left);
-//		System.out.println("right "+ this.right);
+		if (this.invincible > 0) {
+			this.invincible--;
+		}
 
 		if (this.life == 0) {
 			return;
@@ -194,21 +207,38 @@ public class Hero extends FlyingObject {
 		}
 	}
 
-//	@Override
-//	public boolean collision(FlyingObject f) {
-//		//飞机的四个点
-//		boolean b = false;
-//
-//		int xl = Math.abs(this.x - f.x) ;
-//		int yl = Math.abs(this.y - f.y) ;
-//		
-//		if((xl < this.image.getWidth()) && (yl < this.image.getHeight())){
-//			b= true;
-//		}
-//		
-//		return b;
-//	}
+	@Override
+	public boolean collision(FlyingObject f) {
+		// 飞机的6个点
+		boolean b = false;
+		int x1 = this.x + this.image.getWidth() / 2;
+		int x2 = this.x + this.image.getWidth();
 
-	
+		int y1 = this.y + this.image.getHeight() / 2;
+		int y2 = this.y + this.image.getHeight();
+
+		int fx = f.x;
+		int fx1 = f.x + f.image.getWidth();
+
+		int fy = f.y;
+		int fy1 = f.y + f.image.getHeight();
+
+		if ((cr(fx, x, fx1) || cr(fx, x1, fx1) || cr(fx, x2, fx1))
+				&& (cr(fy, y, fy1) || cr(fy, y1, fy1) || cr(fy, y2, fy1))) {
+			b = true;
+		}
+				
+		return b;
+	}
+
+	public boolean cr(int x, int y, int z) {
+		boolean b = false;
+		if (x < y) {
+			if (y < z) {
+				b = true;
+			}
+		}
+		return b;
+	}
 
 }

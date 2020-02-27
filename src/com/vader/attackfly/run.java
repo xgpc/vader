@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
@@ -73,6 +74,8 @@ public class run extends Frame {
 	public static BufferedImage zd3;
 	public static BufferedImage zd4;
 
+	public static BufferedImage die;
+
 	// 飞行物入场计数
 	private int flyEnteredIndex = 0;
 
@@ -87,6 +90,14 @@ public class run extends Frame {
 
 	// 飞行物子弹
 	private List<Bullet> enemy_bullets = new ArrayList<Bullet>();
+
+	// 爆炸描绘
+	private List<point> dies = new ArrayList<point>();
+
+	class point {
+		public int x, y = 0;
+		public int num = 30;
+	}
 
 	public boolean space;
 
@@ -119,6 +130,8 @@ public class run extends Frame {
 			zd2 = ImageIO.read(new File("images/zd2.png"));
 			zd3 = ImageIO.read(new File("images/zd3.png"));
 			zd4 = ImageIO.read(new File("images/zd4.png"));
+
+			die = ImageIO.read(new File("images/die.png"));
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -303,6 +316,10 @@ public class run extends Frame {
 		case START:
 			// 初始化 游戏状态
 
+			this.enemy_bullets.clear();
+			this.enemys.clear();
+			this.bullets.clear();
+
 			this.heros.get(0).addlife();
 			this.heros.get(0).addlife();
 			this.heros.get(0).addlife();
@@ -364,7 +381,6 @@ public class run extends Frame {
 	// 碰撞检测
 	private void bangAction() {
 
-
 		// 子弹检测
 		for (int j = 0; j < bullets.size(); j++) {
 			Bullet b = bullets.get(j);
@@ -376,14 +392,19 @@ public class run extends Frame {
 				}
 				// 子弹消失
 				bullets.remove(b);
-				// TODO: 子弹爆炸特效
 
 				//
 				if (e.subLife(b.getFire()) < 0) {
 					this.score += e.getScore();
-					if(e.isBoos()) {
+					if (e.isBoos()) {
 						this.isBoss = false;
 					}
+					// TODO: 子弹爆炸特效
+					point p = new point();
+					p.x = e.x - 60;
+					p.y = e.y - 40;
+					this.dies.add(p);
+
 					enemys.remove(e);
 					break;
 				}
@@ -394,13 +415,18 @@ public class run extends Frame {
 		for (int i = 0; i < heros.size(); i++) {
 			Hero h = heros.get(i);
 			for (int j = 0; j < enemys.size(); j++) {
+				if ((h.getLife() == 0) || (h.getInvincible() > 0)) {
+					break;
+				}
+
 				Enemy e = (Enemy) enemys.get(j);
 				if (h.collision(e) == false) {
 					continue;
 				}
-				System.out.println("pengdao");
-				
-				
+				h.subtractLife();
+				h.setInvincible(70);
+//				System.out.println("pengdao");
+
 			}
 		}
 
@@ -426,17 +452,16 @@ public class run extends Frame {
 				if (this.boom == 0) {
 					continue;
 				}
-				
+
 				this.enemy_bullets.clear();
 				for (int j = 0; j < enemys.size(); j++) {
-					Enemy e = (Enemy)enemys.get(j);
-					if(e.isBoos()== true) {
+					Enemy e = (Enemy) enemys.get(j);
+					if (e.isBoos() == true) {
 						continue;
 					}
 					enemys.remove(e);
 				}
-								
-				
+
 				this.boom--;
 			}
 		}
@@ -559,6 +584,7 @@ public class run extends Frame {
 		paintFlyingObjects(g); // 画飞行物
 		paintScore(g); // 画分数
 		paintState(g); // 画游戏状态
+		paintdie(g);
 	}
 
 	/** 画英雄机 */
@@ -631,6 +657,19 @@ public class run extends Frame {
 		case GAME_OVER: // 游戏终止状态
 			g.drawImage(gameover, windows_X - gameover.getWidth() / 2, windows_Y, null);
 			break;
+		}
+	}
+
+	/**
+	 * 描绘爆炸效果
+	 */
+	public void paintdie(Graphics g) {
+		for (int i = 0; i < this.dies.size(); i++) {
+			point p = dies.get(i);
+			if (p.num-- > 0) {
+				g.drawImage(this.die, p.x, p.y, null);
+			}
+			this.dies.remove(p);
 		}
 	}
 
