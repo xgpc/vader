@@ -230,6 +230,23 @@ public class Hero extends FlyingObject {
 				
 		return b;
 	}
+	
+	public boolean collision1(FlyingObject f) {
+		// Åö×²¼ì²â
+
+			boolean b = true;
+			if(f.y > this.y + this.image.getHeight()) {
+				b =  false;
+			}else if(f.x < this.x){
+				b = false;
+			}else if(f.x + f.image.getWidth() > this.x + this.image.getWidth()){
+				b = false;
+			}else if(f.y + f.image.getHeight() < this.y){
+				b = false;
+			}
+			return b;
+
+		}
 
 	public boolean cr(int x, int y, int z) {
 		boolean b = false;

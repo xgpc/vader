@@ -41,6 +41,7 @@ public class run extends Frame {
 	private Timer timer; // 定时器
 	private int intervel = 40; // 时间间隔(毫秒)
 	private int intervaltime = 50; // 400毫秒生成一个飞行物--10*40
+	private boolean add2p = false;
 
 	// 资源加载
 	public static BufferedImage background; // 背景
@@ -169,13 +170,20 @@ public class run extends Frame {
 		h2.setWidth(this.background.getWidth());
 
 		this.heros.add(h1);
+		this.heros.add(h2);
 
+		// 可优化进子弹类 里边
 		for (int i = 0; i < heros.size(); i++) {
 			heros.get(i).setZd1(zd1);
 			heros.get(i).setZd2(zd2);
 			heros.get(i).setZd3(zd3);
 			heros.get(i).setZd4(zd4);
 		}
+
+		// 初始化 敌人子弹图标
+		Enemy.zdImage.add(ezd1);
+		Enemy.zdImage.add(ezd2);
+		Enemy.zdImage.add(ezd3);
 
 		addKeyListener(new KeyMonitor()); // 监听键盘
 		this.addWindowListener(new WindowAdapter() {
@@ -224,9 +232,12 @@ public class run extends Frame {
 	// 关联键盘按键
 	public void PressKey(KeyEvent e) {
 //		System.out.println("按下-:" + e.getKeyChar());
+
+		listen2pkey(e);
+
 		switch (e.getKeyCode()) {
 		case KeyEvent.VK_SPACE:
-			space = true;
+			this.space = true;
 			break;
 		case KeyEvent.VK_UP:
 			this.heros.get(0).setup(true);
@@ -265,6 +276,48 @@ public class run extends Frame {
 			this.heros.get(1).boom = true;
 			break;
 		}
+	}
+
+	/**
+	 * 监听2p 键盘是否触发, 是的话添加life (一局游戏一次)
+	 * 
+	 * @param e
+	 */
+	private void listen2pkey(KeyEvent e) {
+
+//		System.out.println("按下 :" + e.getKeyCode() + " add2p= " + this.add2p );
+		if (this.add2p == true) {
+			return;
+		}
+//		System.out.println("----------------------------------+++" );
+		switch (e.getKeyCode()) {
+
+		case KeyEvent.VK_W:
+			this.add2p = true;
+			break;
+		case KeyEvent.VK_S:
+			this.add2p = true;
+			break;
+		case KeyEvent.VK_A:
+			this.add2p = true;
+			break;
+		case KeyEvent.VK_D:
+			this.add2p = true;
+			break;
+		case KeyEvent.VK_J:
+			this.add2p = true;
+			break;
+		case KeyEvent.VK_K:
+			this.add2p = true;
+			break;
+		}
+
+		if (this.add2p == true) {
+			this.heros.get(1).addlife();
+			this.heros.get(1).addlife();
+			this.heros.get(1).addlife();
+		}
+
 	}
 
 	public void ReleasedKey(KeyEvent e) {
@@ -335,6 +388,7 @@ public class run extends Frame {
 			this.state = RUNNING;
 			this.score = 0;
 			this.boom = 1;
+			this.add2p = false;
 
 			break;
 
@@ -390,12 +444,20 @@ public class run extends Frame {
 	private void bangAction() {
 
 		// 子弹检测
+		zdBangAction();
+
+		// 撞机检测
+		objectBangAction();
+	}
+
+	private void zdBangAction() {
+		//Hero 
 		for (int j = 0; j < bullets.size(); j++) {
 			Bullet b = bullets.get(j);
 			for (int i = 0; i < enemys.size(); i++) {
 				Enemy e = (Enemy) enemys.get(i);
 
-				if (e.collision(b) == false) {
+				if (b.collision(e) == false) {
 					continue;
 				}
 				// 子弹消失
@@ -407,7 +469,7 @@ public class run extends Frame {
 					if (e.isBoos()) {
 						this.isBoss = false;
 					}
-					// TODO: 子弹爆炸特效
+					// 子弹爆炸特效
 					point p = new point();
 					p.x = e.x - 60;
 					p.y = e.y - 40;
@@ -418,8 +480,28 @@ public class run extends Frame {
 				}
 			}
 		}
+		
+		//enemy
+		for (int j = 0; j < enemy_bullets.size(); j++) {
+			Bullet b = enemy_bullets.get(j);
+			for (int i = 0; i < heros.size(); i++) {
+				Hero h = heros.get(i);
 
-		// 撞机检测
+				if (h.collision1(b) == false) {
+					continue;
+				}
+
+				// 子弹消失
+				enemy_bullets.remove(b);
+				
+				h.subtractLife();
+				h.setInvincible(70);
+
+			}
+		}
+	}
+
+	private void objectBangAction() {
 		for (int i = 0; i < heros.size(); i++) {
 			Hero h = heros.get(i);
 			for (int j = 0; j < enemys.size(); j++) {
@@ -437,18 +519,17 @@ public class run extends Frame {
 
 			}
 		}
-
 	}
 
 	private void objectgo() {
 		// 英雄攻击
 		heroattack();
-		
+
 		// 敌机攻击
 		enemyattack();
-	
+
 	}
-	
+
 	private void heroattack() {
 		attacknum++;
 		for (int i = 0; i < heros.size(); i++) {
@@ -468,7 +549,7 @@ public class run extends Frame {
 				if (this.boom == 0) {
 					continue;
 				}
-
+				System.out.println("使用炸弹");
 				this.enemy_bullets.clear();
 				for (int j = 0; j < enemys.size(); j++) {
 					Enemy e = (Enemy) enemys.get(j);
@@ -486,10 +567,26 @@ public class run extends Frame {
 	private void enemyattack() {
 		for (int i = 0; i < this.enemys.size(); i++) {
 			Enemy e = (Enemy) this.enemys.get(i);
-			e.attack();
+//			System.out.println("---------敌人子弹: " + enemy_bullets.size());
+			
+			e.setheroxy(getHeroxy());
+			
+			List<Bullet> b = e.attack();
+			if(b != null) {				
+				this.enemy_bullets.addAll(b);
+			}
+//			System.out.println("敌人子弹-----------: " + enemy_bullets.size());
 		}
 	}
-	
+	private Hero getHeroxy() {
+		int pos = 0;
+		if(this.heros.size() > 1) {
+			Random random = new Random();
+			pos = random.nextInt(2); // [0,2)
+		}
+		return this.heros.get(pos);
+	}
+
 	private void createEnemy() {
 		flyEnteredIndex++;
 
@@ -510,20 +607,22 @@ public class run extends Frame {
 		int type = random.nextInt(20); // [0,20)
 		Enemy e = new Enemy();
 
-		if (type < 8) {
+		if (type < 9) {
 			e.setImage(this.fj1);
 			e.setBulletType(0);
 			e.setLife(2);
+			e.setFrequency(25);
 
-		} else if (type < 12) {
+		} else if (type < 14) {
 			e.setImage(this.fj2);
-			e.setBulletType(0);
+			e.setBulletType(1);
 			e.setLife(3);
 
-		} else if (type < 13) {
+		} else if (type < 17) {
 			e.setImage(this.fj3);
-			e.setBulletType(1);
-			e.setLife(4);
+			e.setBulletType(2);
+			e.setLife(5);
+			e.setFrequency(30);
 		} else if (type < 20) {
 
 			if ((type == 19) && (isBoss != true)) {
@@ -532,8 +631,8 @@ public class run extends Frame {
 				return e;
 			}
 			e.setImage(this.fj4);
-			e.setBulletType(2);
-			e.setLife(4);
+			e.setBulletType(3);
+			e.setLife(5);
 		}
 
 		e.setX(random.nextInt(this.background.getWidth() - e.getImage().getWidth()) + 10);
@@ -564,9 +663,10 @@ public class run extends Frame {
 		}
 
 		e.setBoos(true);
-		e.setLife(20);
+		e.setLife(50);
 		e.setScore(20);
 		e.setSpeed(1);
+		e.setBulletType(3);
 		e.setBoos(true);
 
 		// 设置Boss位置居中
@@ -615,6 +715,11 @@ public class run extends Frame {
 		for (int i = 0; i < heros.size(); i++) {
 			Hero hero = heros.get(i);
 			if (hero.getLife() != 0) {
+				if(hero.getInvincible() > 0) {
+					if (hero.getInvincible()%3 != 0) {
+						return;
+					}
+				}
 				g.drawImage(hero.getImage(), hero.getX(), hero.getY(), null);
 			}
 
