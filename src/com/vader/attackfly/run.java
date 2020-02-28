@@ -49,6 +49,9 @@ public class run extends Frame {
 	public static BufferedImage pause; // 暂停
 	public static BufferedImage gameover; // 结束
 
+	public static BufferedImage bt1;
+	public static BufferedImage bt2;
+
 	public static BufferedImage airplane;
 	public static BufferedImage bee;
 	public static BufferedImage bullet;
@@ -79,7 +82,8 @@ public class run extends Frame {
 	public static BufferedImage HeroBoom1;
 
 	public static BufferedImage die;
-	public static BufferedImage Herolife;
+	public static List<BufferedImage> Herolifes = new ArrayList<BufferedImage>();
+//	public static BufferedImage Herolife1;
 
 	// 飞行物入场计数
 	private int flyEnteredIndex = 0;
@@ -98,7 +102,9 @@ public class run extends Frame {
 
 	// 爆炸描绘
 	private List<point> dies = new ArrayList<point>();
-
+	
+	private db d = new db();
+	
 	class point {
 		public int x, y = 0;
 		public int num = 30;
@@ -137,9 +143,14 @@ public class run extends Frame {
 			zd4 = ImageIO.read(new File("images/zd4.png"));
 
 			die = ImageIO.read(new File("images/die.png"));
-			Herolife = ImageIO.read(new File("images/life.png"));
+			Herolifes.add(ImageIO.read(new File("images/life.png")));
+			Herolifes.add(ImageIO.read(new File("images/life1.png")));
 			HeroBoom = ImageIO.read(new File("images/boom.png"));
 			HeroBoom1 = ImageIO.read(new File("images/boom1.png"));
+			
+
+			bt1 = ImageIO.read(new File("images/bt1.png"));
+			bt2 = ImageIO.read(new File("images/bt2.png"));
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -406,6 +417,7 @@ public class run extends Frame {
 			}
 			if (life <= 0) {
 				this.state = GAME_OVER;
+				d.setinfo(this.score);
 			}
 
 			// 生成机体
@@ -707,7 +719,7 @@ public class run extends Frame {
 		paintFlyingObjects(g); // 画飞行物
 		paintScore(g); // 画分数
 		paintState(g); // 画游戏状态
-		paintdie(g);
+		paintdie(g);	//画爆炸效果
 	}
 
 	/** 画英雄机 */
@@ -717,7 +729,7 @@ public class run extends Frame {
 			if (hero.getLife() != 0) {
 				if(hero.getInvincible() > 0) {
 					if (hero.getInvincible()%3 != 0) {
-						return;
+						continue;
 					}
 				}
 				g.drawImage(hero.getImage(), hero.getX(), hero.getY(), null);
@@ -733,15 +745,15 @@ public class run extends Frame {
 		for (int i = 0; i < bullets.size(); i++) {
 			Bullet b = bullets.get(i);
 			g.drawImage(b.getImage(), b.getX() - b.getImage().getWidth() / 2, b.getY(), null);
-			g.drawRect(b.getX() - b.getImage().getWidth() / 2, b.getY(), b.getImage().getWidth(),
-					b.getImage().getHeight()); // FIX: 范围
+//			g.drawRect(b.getX() - b.getImage().getWidth() / 2, b.getY(), b.getImage().getWidth(),
+//					b.getImage().getHeight()); // FIX: 范围
 		}
 
 		for (int i = 0; i < enemy_bullets.size(); i++) {
 			Bullet b = enemy_bullets.get(i);
 			g.drawImage(b.getImage(), b.getX() - b.getImage().getWidth() / 2, b.getY(), null);
-			g.drawRect(b.getX() - b.getImage().getWidth() / 2, b.getY(), b.getImage().getWidth(),
-					b.getImage().getHeight()); // FIX: 范围
+//			g.drawRect(b.getX() - b.getImage().getWidth() / 2, b.getY(), b.getImage().getWidth(),
+//					b.getImage().getHeight()); // FIX: 范围
 		}
 
 	}
@@ -751,7 +763,7 @@ public class run extends Frame {
 		for (int i = 0; i < enemys.size(); i++) {
 			FlyingObject f = enemys.get(i);
 			g.drawImage(f.getImage(), f.getX(), f.getY(), null);
-			g.drawRect(f.getX(), f.getY(), f.getImage().getWidth(), f.getImage().getHeight()); // FIX: 范围
+//			g.drawRect(f.getX(), f.getY(), f.getImage().getWidth(), f.getImage().getHeight()); // FIX: 范围
 		}
 	}
 
@@ -768,7 +780,7 @@ public class run extends Frame {
 			// 画生命图标
 			y = y + 40; // y坐标增20
 			for (int j = 0; j < this.heros.get(i).getLife(); j++) {
-				g.drawImage(this.Herolife, x + (40 * j), y - this.Herolife.getHeight() + 10, null);
+				g.drawImage(this.Herolifes.get(i), x + (40 * j), y - this.Herolifes.get(i).getHeight() + 10, null);
 			}
 		}
 
@@ -831,13 +843,18 @@ public class run extends Frame {
 	public List<Scorecard> scorecards = new ArrayList<Scorecard>();;
 
 	public void setscorecards() {
-		for (int i = 0; i < 5; i++) {
+		List<String> bodys = d.getinfo();
+		scorecards.clear();
+		
+		for (int i = 0; i < bodys.size(); i++) {
 			Scorecard s = new Scorecard();
-			s.setbody("战机 ");
-			s.x = windows_X - 80;
-			s.y = windows_Y - 70 + (i * 40);
+			s.setbody(bodys.get(i));
+			s.x = 80;
+			s.y = this.background.getHeight()/2 - 70 + (i * 40);
 			scorecards.add(s);
 		}
+		
+	
 	}
 
 	public void paintMenu(Graphics g) {
@@ -845,14 +862,19 @@ public class run extends Frame {
 			System.out.print("获取计分板");
 			setscorecards();
 		}
+		
+		g.drawImage(this.bt1, windows_X - bt1.getWidth()/2, 200, null);
+
+	
 		g.setColor(Color.black);
-		g.fillRoundRect(windows_X - 100, windows_Y - 100, 200, 200, 60, 40);// 涂一个圆角矩形块
+		g.fillRoundRect(60, windows_Y - 100, 400, 200, 60, 40);// 涂一个圆角矩形块
 		g.setColor(Color.red);
 
 		for (int i = 0; i < scorecards.size(); i++) {
 			Scorecard s = scorecards.get(i);
 			g.drawString(s.getBody(), s.x, s.y);
 		}
+		g.drawImage(this.bt2, windows_X - bt2.getWidth()/2, 600, null);
 	}
 
 	/** 删除越界飞行物及子弹 */
