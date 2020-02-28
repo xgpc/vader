@@ -447,6 +447,7 @@ public class run extends Frame {
 			if (this.space) {
 				this.space = false;
 				this.state = MENU;
+				scorecards.clear();
 			}
 			break;
 		}
@@ -844,8 +845,7 @@ public class run extends Frame {
 
 	public void setscorecards() {
 		List<String> bodys = d.getinfo();
-		scorecards.clear();
-		
+				
 		for (int i = 0; i < bodys.size(); i++) {
 			Scorecard s = new Scorecard();
 			s.setbody(bodys.get(i));

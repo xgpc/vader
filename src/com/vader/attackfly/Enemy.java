@@ -198,7 +198,7 @@ public class Enemy extends FlyingObject {
 			int l = this.image.getWidth()/n;
 			
 			for (int i = 0; i < n; i++) {
-				Bullet b = new Bullet(this.x + l * i, this.y + this.image.getHeight());
+				Bullet b = new Bullet(this.x + l * i, this.y + this.image.getHeight()/2);
 				
 				b.setHeight(this.height);
 				b.setWidth(this.width);
